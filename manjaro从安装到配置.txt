@@ -1,0 +1,147 @@
+ 
+.更新中文源
+
+默认下载是非常非常慢的。需要添加中文的源。
+
+//更新镜像排名
+sudo pacman-mirrors -i -c China -m rank
+会无反应一段时间，速度慢。
+
+::INFO Downloading mirrors from repo.manjaro.org
+::INFO Using default mirror file
+::INFO Querying mirrors - This may take some time
+  ..... China          : https://mirrors.ustc.edu.cn/manjaro/
+  3.175 China          : https://mirrors.sjtug.sjtu.edu.cn/manjaro/
+然后会弹窗叫你选择
+勾选你需要的镜像源，确认即可
+更新数据源
+sudo pacman -Syy
+主要更新了下面这些组件，注意里面已经安装了archlinuxcn
+:: 正在同步软件包数据库...
+ core                  150.3 KiB   693 KiB/s 00:00 [###################] 100%
+ extra                1766.6 KiB  1295 KiB/s 00:01 [###################] 100%
+ community               5.2 MiB  2.38 MiB/s 00:02 [###################] 100%
+ multilib              176.6 KiB  7.50 MiB/s 00:00 [###################] 100%
+ archlinuxcn          1277.6 KiB  4.46 MiB/s 00:00 [###################] 100%
+如果出现下面的错误，可以重复第一步换个中文源
+错误：无法从 mirrors.ustc.edu.cn : Operation timed out after 10001 milliseconds with 0 out of 0 bytes received 获取文件 'archlinuxcn.db'
+错误：无法升级 archlinuxcn (下载数据库出错)
+错误：未能成功同步所有数据库
+​
+
+
+由于接下来需要用到vi来编辑文件。而默认的vi非常非常难用。而且默认是没有安装vim的
+sudo pacman -S vim
+sudo vim /etc/pacman.conf
+在末尾添加下面的代码           ctrl+shift+v
+[archlinuxcn]
+#SigLevel=Optional TrustOnly
+SigLevel=Optional TrustAll
+Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
+重新更新软件源和密钥
+sudo pacman -Syy//这个时候可能失败，多试几次就行了。
+//在下面的操作中如果遇到签名错误或者key错误的问题，需要重新执行这句话
+sudo pacman -S archlinux-keyring
+sudo pacman -Syu
+
+
+
+
+安装拼音输入法:
+
+sudo pacman -S fcitx-im (#默认全部安装)
+sudo pacman -S fcitx-configtool
+sudo pacman -S fcitx-rime
+sudo pacman -S fcitx-sogoupinyin (#安装搜狗拼音)
+//这里推荐google输入法，搜狗并不是官方支持的而且各种问题
+sudo pacman -S fcitx-googlepinyin (#安装google拼音)
+
+vim ~/.xprofile
+
+添加下面的内容
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS="@im=fcitx"
+
+
+esc-:wq
+注销或者重启就可以看到输入法了。
+
+模式切换
+f4可以快速切换模式
+
+新建配置文件
+# default.custom.yaml
+# save it to:
+#   ~/.config/ibus/rime  (linux)
+#   ~/Library/Rime       (macos)
+#   %APPDATA%\Rime       (windows)
+​
+patch:
+  schema_list:
+    - schema: luna_pinyin          # 朙月拼音
+    - schema: double_pinyin        # 自然碼雙拼
+  "menu/page_size": 9
+  "key_binder/bindings":
+    - { when: always, accept: Release+Escape, toggle: ascii_mode}
+
+词库
+https://github.com/Chernfalin/better-rime-dict
+
+下载后直接复制到.config/fcitx/rime/下面即可。然后fcitx重新部署rime.安装这个后会修改原来的配置文件所以还需要重新修改Shift_L: commit_code。
+git clone https://github.com/Chernfalin/better-rime-dict
+cd better-rime-dict
+cp -R * ~/.config/fcitx/rime
+
+
+rime输入法的配置
+主要是Shift_L: commit_code这一行。建议先安装词库，安装词库会导致配置更新，原来的配置失效。
+还有一个选项是commit_text,如果在中文输入法下，lshift直接把中文字符输出，但如果设置成commit_code，则直接输出拼音部分，也就是code。还有就是inline_ascii这个选项，会将拼音输入到一个小筐（拼音框）中，按enter才会输入，再次按lshift,又切换回原来的原来两个框的状态（拼音和中文框）。
+build/default.yaml
+  good_old_caps_lock: true
+  switch_key:
+    Caps_Lock: clear
+    Control_L: noop
+    Control_R: noop
+    Eisu_toggle: clear
+    Shift_L: commit_code
+    Shift_R: inline_ascii
+
+vim切换中英文
+在/.config/fcitx/rime/default.custom.yaml下添加代码：
+"key_binder/bindings":
+- { when: always, accept: Release+Escape, toggle: ascii_mode}
+
+
+Manjaro 报 Cannot find the fakeroot binary 错误原因及解决:sudo pacman -Sy base-devel
+
+下载并配置yay:
+sudo pacman -Sy yay
+yay --aururl "https://aur.tuna.tsinghua.edu.cn" --save
+
+
+安裝TIM:yay -Sy com.qq.tim.spark
+安裝微信：yay -Sy deepin-wine-wechat
+
+
+
+
+1: Cannot find the fakeroot binary
+2:安装过程如遇到需要安装一下 base-devel 和 binutils：
+sudo pacman -S base-devel binutils
+
+
+微信输入时乱码：
+sudo pacman -S wqy-microhei
+
+sudo pacman -Sy yay
+yay -S google-chrome
+
+安装WPS步骤
+yay -S wps-office-cn
+yay -S wps-office-mui-zh-cn
+yay -S ttf-wps-fonts
+
+
+
+
